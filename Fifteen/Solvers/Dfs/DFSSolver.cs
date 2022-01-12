@@ -8,7 +8,7 @@ namespace Fifteen.Solvers.Dfs
     {
         private const int MaxDepth = 20;
         
-        private readonly HashSet<PuzzleState> _explored = new();
+        private readonly HashSet<PuzzleState> _explored = new(new PuzzleStateComparer());
         private readonly Stack<Node> _frontier = new();
         private readonly OperatorOrder _order;
         
@@ -28,6 +28,7 @@ namespace Fifteen.Solvers.Dfs
             while (_frontier.Count != 0)
             {
                 _currentNode = _frontier.Pop();
+                _explored.Add(_currentNode.PuzzleState);
                 
                 if (IsSolution(_currentNode))
                 {
@@ -46,28 +47,41 @@ namespace Fifteen.Solvers.Dfs
         private void Explore(Node node)
         {
             Solution.MaxDepth = Math.Max(Solution.MaxDepth, node.Depth);
-            _explored.Add(_currentNode.PuzzleState);
             
             var depth = node.Depth;
-            if (depth > MaxDepth)
+            if (depth >= MaxDepth)
+            {
+                _explored.Clear();
                 return;
+            }
             
             foreach (var op in _order.Operators)
             {
                 if (!op.CanBePerformedOn(node.PuzzleState)) 
                     continue;
                 
+                Solution.StatesVisited++;
                 var newState = op.Perform(node.PuzzleState);
-                    
                 if (_explored.Contains(newState))
                     continue;
 
                 var newNode = new Node(newState, node);
                 _frontier.Push(newNode);
-                Solution.StatesVisited++;
             }
-
             Solution.StatesProcessed++;
+        }
+    }
+
+    internal class PuzzleStateComparer : IEqualityComparer<PuzzleState>
+    {
+        public bool Equals(PuzzleState x, PuzzleState y)
+        {
+            return x.GetHashCode() == y.GetHashCode();
+        }
+
+        public int GetHashCode(PuzzleState obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }

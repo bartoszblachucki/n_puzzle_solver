@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Fifteen.Solvers.Dfs;
 
 namespace Fifteen.Solvers.Bfs
 {
     // ReSharper disable once InconsistentNaming
     public class BFSSolver : Solver
     {
-        private readonly HashSet<PuzzleState> _explored = new();
+        private readonly HashSet<PuzzleState> _explored = new(new PuzzleStateComparer());
         private readonly Queue<Node> _frontier = new();
         private readonly OperatorOrder _order;
 
@@ -51,16 +52,14 @@ namespace Fifteen.Solvers.Bfs
                     continue;
                 
                 var newState = op.Perform(node.PuzzleState);
+                Solution.StatesVisited++;
                     
                 if (_explored.Contains(newState))
-                {
                     continue;
-                }
-                
+
                 var newNode = new Node(newState, node);
                 _frontier.Enqueue(newNode);
 
-                Solution.StatesVisited++;
             }
             _explored.Add(node.PuzzleState);
             

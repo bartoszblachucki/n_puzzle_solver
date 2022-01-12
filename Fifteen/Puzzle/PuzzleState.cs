@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 
 namespace Fifteen
 {
@@ -10,9 +8,11 @@ namespace Fifteen
         private readonly int[,] _items;
         private readonly Coords _zeroPos;
         private readonly string _string;
+        private readonly int _hash;
+        
+        public int Rows { get; }
+        public int Columns { get; }
 
-        public int Rows => _items.GetLength(0);
-        public int Columns => _items.GetLength(1);
         public Coords ZeroPosition => _zeroPos;
 
         public PuzzleState(int[,] items, Coords zeroPos)
@@ -20,6 +20,10 @@ namespace Fifteen
             _items = items;
             _zeroPos = zeroPos;
             _string = CreateStringRepresentation(_items);
+            _hash = _string.GetHashCode();
+            
+            Rows = _items.GetLength(0);
+            Columns = _items.GetLength(1);
         }
 
         public PuzzleState(int[,] items) : this(items, FindZeroPos(items)) { }
@@ -92,12 +96,7 @@ namespace Fifteen
 
             return true;
         }
-
-        public override bool Equals(object obj)
-        {
-            return obj is PuzzleState other && Equals(other);
-        }
-
+        
         /// <summary>
         /// PuzzleState jest niemutowalny, więc jako hasz zwracam hasz reprezentacji tekstowej
         /// (celem późniejszego użycia HashSetów)
@@ -105,7 +104,7 @@ namespace Fifteen
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return ToString().GetHashCode();
+            return _hash;
         }
 
         private static Coords FindZeroPos(int[,] items)
@@ -144,7 +143,8 @@ namespace Fifteen
 
         private static string CreateStringRepresentation(int[,] items)
         {
-            string repr = "";
+            StringBuilder repr = new StringBuilder();
+            //string repr = "";
             var rows = items.GetLength(0);
             var columns = items.GetLength(1);
 
@@ -152,13 +152,13 @@ namespace Fifteen
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    repr += $"{items[i, j]} ";
+                    repr.Append($"{items[i, j]} ");
                 }
 
-                repr += "\n";
+                repr.Append("\n");
             }
 
-            return repr;
+            return repr.ToString();
 
             // Wersja linQ jest zbyt wolna przy milionach operacji
             /*return string.Join(Environment.NewLine, items.OfType<int>()

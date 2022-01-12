@@ -6,8 +6,8 @@ namespace Fifteen.Solvers.Astar
 {
     public class AstarSolver : Solver
     {
-        private readonly HashSet<AstarNode> _openSet = new();
-        private readonly HashSet<AstarNode> _closedSet = new();
+        private readonly HashSet<AstarNode> _openSet = new(new AstarNodeComparer());
+        private readonly HashSet<AstarNode> _closedSet = new(new AstarNodeComparer());
 
         private readonly Heuristic _heuristic;
         private readonly OperatorOrder _order;
@@ -105,6 +105,25 @@ namespace Fifteen.Solvers.Astar
         private int CalculateHeuristicScore(Node node, PuzzleState goalState)
         {
             return _heuristic.CalculateHeuristicScore(node, goalState);
+        }
+    }
+
+    internal class AstarNodeComparer : IEqualityComparer<AstarNode>
+    {
+        public bool Equals(AstarNode x, AstarNode y)
+        {
+            if (x == null && y == null)
+                return true;
+
+            if (x == null || y == null)
+                return false;
+
+            return x.GetHashCode() == y.GetHashCode();
+        }
+
+        public int GetHashCode(AstarNode obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }
